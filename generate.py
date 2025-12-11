@@ -1,62 +1,59 @@
 import random
 
-def generate(level,dlina):
+def generate(level: int, length: int) -> str:
+    '''
+    Генератор безопасного пароля.
 
-    low = 'abcdefghijklmnopqrstuvwxyz'
-    upp = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    dig = '0123456789'
-    sym = '!@#$%^&*()_+-'
+    Аргументы:
+    level -- уровень сложности (1=легкий, 2=средний, 3=сложный)
+    length -- длина пароля (минимум зависит от уровня сложности)
 
-    easy = low + dig
-    medium = upp + low + dig
-    hard = low + upp + dig + sym
+    Возвращает:
+    Сгенерированный пароль (str)
+    '''
+    # Наборы символов
+    lower = 'abcdefghijklmnopqrstuvwxyz'
+    upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    digits = '0123456789'
+    symbols = '!@#$%^&*()_+-'
 
-    porol = ''
+    # Комбинации по уровню сложности
+    easy = lower + digits
+    medium = lower + upper + digits
+    hard = lower + upper + digits + symbols
 
-    if level == 1:
-        if dlina < 8:
-            dlina = 8
-            print("не правильный ввод автоматически 8 элементов\n")
-    elif level == 2:
-        if dlina < 10:
-            dlina = 10
-            print("не правильный ввод автоматически 10 элементов\n")
-    else:
-        if dlina < 12:
-            dlina = 12
-            print("не правильный ввод автоматически 12 элементов\n")
+    password = ''
 
-    dop = 2
-
-    porol += random.choice(low)
-    porol += random.choice(dig)
+    # Гарантируем наличие хотя бы одного символа каждого типа
+    password += random.choice(lower)
+    password += random.choice(digits)
+    extra_chars = 2
 
     if level != 1:
-        porol += random.choice(upp)
-        dop += 1
-        if level != 2:
-            dop += 1
-            porol += random.choice(sym)
+        password += random.choice(upper)
+        extra_chars += 1
+        if level == 3:
+            password += random.choice(symbols)
+            extra_chars += 1
 
-    for i in range(dlina - dop):
+    # Остальные символы
+    for _ in range(length - extra_chars):
         if level == 1:
-            kambayn = random.choice(easy)
-
+            password += random.choice(easy)
         elif level == 2:
-            kambayn = random.choice(medium)
+            password += random.choice(medium)
+        else:
+            password += random.choice(hard)
 
-        else :
-            kambayn = random.choice(hard)
-        porol += kambayn
-
+    # Перемешивание символов, чтобы не было одинаковых подряд
     while True:
-        s_porol = ''.join(random.sample(porol, len(porol)))
-        wyhod = True
+        shuffled = ''.join(random.sample(password, len(password)))
+        has_repeat = True
 
-        for j in range(len(s_porol)-1):
-            if s_porol[j] == s_porol[j+1]:
-                wyhod = False
+        for j in range(len(shuffled)-1):
+            if shuffled[j] == shuffled[j+1]:
+                has_repeat = False
                 break
 
-        if wyhod:
-            return s_porol
+        if has_repeat:
+            return shuffled

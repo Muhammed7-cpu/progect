@@ -1,54 +1,63 @@
-def check_password(user_pas):
+def check_password(user_password: str) -> tuple[str, bool]:
+    '''
+    Проверка надежности пароля.
 
-    porol_len =len(user_pas)
+    Аргументы:
+    user_password -- пароль пользователя
 
-    low = 'abcdefghijklmnopqrstuvwxyz'
-    upp = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    dig = '0123456789'
-    sym = '!@#$%^&*()_+-'
+    Возвращает:
+    tuple:
+        str -- оценка надежности ("очень слабый" … "очень хороший")
+        bool -- True, если есть повторяющиеся символы подряд
+    '''
+    length = len(user_password)
 
-    h_low = h_upp = h_dig =  h_sym = False
+    lower = 'abcdefghijklmnopqrstuvwxyz'
+    upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    digits = '0123456789'
+    symbols = '!@#$%^&*()_+-'
 
-    for i in range(porol_len):
-        if user_pas[i] in low:
-            h_low = True
-        elif user_pas[i] in upp:
-            h_upp = True
-        elif user_pas[i] in dig:
-            h_dig = True
-        elif user_pas[i] in sym:
-            h_sym = True
+    has_lower = has_upper = has_digit = has_symbol = False
 
-    double = False
-    for j in range(1,porol_len):
-        if user_pas[j] == user_pas[j - 1]:
-            double = True
-            break
+    for char in user_password:
+        if char in lower:
+            has_lower = True
+        elif char in upper:
+            has_upper = True
+        elif char in digits:
+            has_digit = True
+        elif char in symbols:
+            has_symbol = True
 
-    sbor = 0
+    # Проверка повторяющихся символов подряд
+    has_repeat = 'нет'
+    for i in range(length):
+        if user_password[i] in user_password[i - 1]:
+            has_repeat = 'есть'
 
-    if h_low:
-        sbor += 26
-    if h_upp:
-        sbor += 26
-    if h_dig:
-        sbor += 10
-    if h_sym:
-        sbor += len(sym)
+    # Количество возможных символов
+    charset_size = 0
+    if has_lower:
+        charset_size += 26
+    if has_upper:
+        charset_size += 26
+    if has_digit:
+        charset_size += 10
+    if has_symbol:
+        charset_size += len(symbols)
 
-    comb = sbor ** porol_len
+    combinations = charset_size ** length
+    time_to_crack_sec = combinations / 10000000  # примерное время взлома
 
-    second = comb  / 10000000
-
-    if second < 1:
-         wywod= "очень слабый"
-    elif second < 60:
-        wywod = "слабый"
-    elif second < 3600:
-        wywod = "средний"
-    elif second < 86400:
-        wywod = "хороший"
+    if time_to_crack_sec < 1:
+        strength = "очень слабый"
+    elif time_to_crack_sec < 60:
+        strength = "слабый"
+    elif time_to_crack_sec < 3600:
+        strength = "средний"
+    elif time_to_crack_sec < 86400:
+        strength = "хороший"
     else:
-        wywod = "очень хороший"
+        strength = "очень хороший"
 
-    return wywod,double
+    return strength, has_repeat

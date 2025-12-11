@@ -1,32 +1,101 @@
+'''
+Программа для генерации и проверки паролей.
+Основные функции:
+- генерация безопасного пароля;
+- проверка надежности пароля;
+- проверка пароля по базе популярных.
+'''
+
 import sys
 
 from generate import generate
 from check_pasword import check_password
 from bace_password import base_password
 
+'''
+Главное меню выбора режима работы.
+1 — генерация пароля
+2 — проверка пароля
+'''
 a = int(input("генератор пороля : 1 \nпроверка проля:2 \n(1/2):"))
+level = 0
 
-if a not in (1,2) :
+if a not in (1, 2):
+    '''
+    Неверный выбор меню — принудительно включаем генерацию сложного пароля.
+    '''
     print("не правильный ввод автоматически переходим в (hard)")
+    a = 1
     level = 3
+    len_password = 12
+
+# === ГЕНЕРАЦИЯ ПАРОЛЯ ===
 if a == 1:
     print("=== УМНЫЙ ГЕНЕРАТОР ПАРОЛЕЙ ===")
-    level = int(input("Ввыберите сложность (1-easy, 2-medium, 3-hard):" ))
-    len_password = int(input("введите длинну пороля:"))
-    password_gen = generate(level, len_password)
+
+    '''
+    Запрашиваем уровень сложности и длину пароля,
+    если они не были выставлены автоматически.
+    '''
+    if level == 0:
+        level = int(input("Ввыберите сложность (1-easy, 2-medium, 3-hard):"))
+        if level not in (1, 2, 3):
+            print("не правильный ввод автоматически переходим: hard")
+            level = 3
+
+        try:
+            '''
+            Проверяем корректность длины.
+            При слишком малой длине — автоматически ставим минимум.
+            '''
+            len_password = int(input("Введите длину пароля: "))
+            min_len = {1: 8, 2: 10, 3: 12}[level]
+
+            if len_password < min_len:
+                print(f"Слишком короткий пароль, автоматически установлено: {min_len}")
+                len_password = min_len
+
+        except ValueError:
+            '''
+            Если длина введена неверно — ставим значение по умолчанию.
+            '''
+            print("Некорректный ввод! Автоматически установлено: 12")
+            len_password = 12
+
+    '''
+    Генерируем пароль через функцию generate()
+    '''
+    password_gen= generate(level, len_password)
+
+    text_level = {1: "easy", 2: "medium", 3: "hard"}[level]
+
     print("\n=====================================")
     print(f"содержит {len_password} символов\n"
-          f"Сложность: {level}\n"
+          f"Сложность: {text_level}\n"
           f"Ваш пороль: {password_gen}")
 
+# === ПРОВЕРКА ПАРОЛЯ ===
 if a == 2:
     print("=== ПРОВЕРЬ СВОЙ ПАРОЛЬ ===")
+
     user_pas = input("Введи свой пароль:")
+
+    '''
+    Проверяем пароль по базе популярных.
+    Если пароль найден — он считается небезопасным.
+    '''
     bace = base_password(user_pas)
     if bace == 2:
         print(f"Пароль есть в базе:{user_pas} он не надежный")
         sys.exit(0)
-    password , repeat = check_password (user_pas)
+
+    '''
+    Проверяем пароль по параметрам:
+    - наличие повторов
+    - уровень надежности
+    '''
+    password, repeat = check_password(user_pas)
+
     print(f"\n=== Проверка пароля ==="
           f"\nДлина: {len(user_pas)}"
           f"\nЕсть ли повторяюшие элементы:{repeat}"
