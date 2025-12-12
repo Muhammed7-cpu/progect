@@ -1,59 +1,48 @@
-import random
+import secrets
+import string
 
-def generate(level: int, length: int) -> str:
-    '''
-    Генератор безопасного пароля.
+# Специальные символы, используемые для сложного пароля
+SPECIAL_CHARS = "!@#$%^&*()_+-"
+
+def generate(level: int, length: int) -> tuple[str, int]:
+    """
+    Генерация случайного пароля заданной сложности и длины.
 
     Аргументы:
-    level -- уровень сложности (1=легкий, 2=средний, 3=сложный)
-    length -- длина пароля (минимум зависит от уровня сложности)
+        level (int): Уровень сложности пароля:
+                     1 - easy (только строчные буквы)
+                     2 - medium (строчные + заглавные буквы + цифры)
+                     3 - hard (medium + специальные символы)
+        length (int): Длина пароля (количество символов)
 
     Возвращает:
-    Сгенерированный пароль (str)
-    '''
-    # Наборы символов
-    lower = 'abcdefghijklmnopqrstuvwxyz'
-    upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
-    digits = '0123456789'
-    symbols = '!@#$%^&*()_+-'
+        tuple[str, int]: Сгенерированный пароль и его длину
+    """
+    # Наборы символов для разных уровней сложности
+    chars_easy = string.ascii_lowercase
+    chars_medium = string.ascii_lowercase + string.ascii_uppercase + string.digits
+    chars_hard = chars_medium + SPECIAL_CHARS
 
-    # Комбинации по уровню сложности
-    easy = lower + digits
-    medium = lower + upper + digits
-    hard = lower + upper + digits + symbols
+    # Выбор набора символов в зависимости от уровня
+    if level == 1:
+        chars = chars_easy
+    elif level == 2:
+        chars = chars_medium
+    else:
+        chars = chars_hard
 
-    password = ''
+    # Генерация пароля случайным образом
+    password = [secrets.choice(chars) for _ in range(length)]
 
-    # Гарантируем наличие хотя бы одного символа каждого типа
-    password += random.choice(lower)
-    password += random.choice(digits)
-    extra_chars = 2
+    # Гарантируем наличие хотя бы одной заглавной буквы для medium и hard
+    if level >= 2 and not any(c.isupper() for c in password):
+        password[secrets.randbelow(length)] = secrets.choice(string.ascii_uppercase)
 
-    if level != 1:
-        password += random.choice(upper)
-        extra_chars += 1
-        if level == 3:
-            password += random.choice(symbols)
-            extra_chars += 1
+    # Гарантируем наличие хотя бы одного специального символа для hard
+    if level == 3 and not any(c in SPECIAL_CHARS for c in password):
+        password[secrets.randbelow(length)] = secrets.choice(SPECIAL_CHARS)
 
-    # Остальные символы
-    for _ in range(length - extra_chars):
-        if level == 1:
-            password += random.choice(easy)
-        elif level == 2:
-            password += random.choice(medium)
-        else:
-            password += random.choice(hard)
+    # Перемешивание пароля для дополнительной случайности
+    secrets.SystemRandom().shuffle(password)
 
-    # Перемешивание символов, чтобы не было одинаковых подряд
-    while True:
-        shuffled = ''.join(random.sample(password, len(password)))
-        has_repeat = True
-
-        for j in range(len(shuffled)-1):
-            if shuffled[j] == shuffled[j+1]:
-                has_repeat = False
-                break
-
-        if has_repeat:
-            return shuffled
+    return "".join(password), length
