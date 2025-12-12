@@ -1,30 +1,14 @@
 import sys
+
 from generate import generate
 from check_pasword import check_password
 from bace_password import base_password
+from encoder import encoder,decoder
 
 def main():
-    """
-    Основная функция программы.
-
-    Позволяет пользователю:
-    1. Сгенерировать пароль с выбранной сложностью и длиной.
-    2. Проверить введенный пароль на безопасность.
-
-    В режиме генерации:
-        - Пользователь выбирает уровень сложности (1 - easy, 2 - medium, 3 - hard)
-        - Пользователь задает длину пароля (с проверкой минимальной длины)
-        - Программа выводит сгенерированный пароль, его длину и сложность
-
-    В режиме проверки:
-        - Пользователь вводит пароль
-        - Проверка по базе известных слабых паролей
-        - Проверка наличия повторяющихся символов
-        - Вывод надежности пароля
-    """
     try:
         # Выбор режима работы программы
-        mode = int(input("генератор пороля : 1 \nпроверка пороля: 2 \n(1/2): "))
+        mode = int(input("генератор пороля : 1 \nпроверка пороля: 2 \nшифратор/дешифратор: 3 \n(1/2/3): "))
     except ValueError:
         print("не правильный ввод автоматически переходим в генерацию пороля")
         mode = 1
@@ -82,6 +66,23 @@ def main():
         print(f"Длина: {len(user_pas)}")
         print(f"Есть повторяющиеся символы: {repeated}")
         print(f"Надежность пароля: {strength}")
+    elif mode == 3:
+        try:
+            a = int(input("1)шифровать/2)дешифровать"))
+            if a not in (1, 2):
+                print("некоректный ввод автоматически шифруем")
+                a = 1
+        except ValueError:
+            print("некоректный ввод автоматически шифруем")
+            a = 1
 
+        user_pas_encoder = input("введите свой пороль:")
+        keys = input("введите ключ для шифрации:")
+        if a == 1:
+            cipher_pas = encoder(user_pas_encoder, keys)
+        if a == 2:
+            cipher_pas = decoder(user_pas_encoder, keys)
+        print(f"пороль:{cipher_pas}\n"
+              f"ключь: {keys}")
 if __name__ == "__main__":
     main()
