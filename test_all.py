@@ -32,7 +32,7 @@ def test_generate_medium_charset():
 
 
 def test_generate_hard_contains_symbol():
-    p, _ = generate(3, 12)
+    p, _ = generate(3, 7)
     symbols = "!@#$%^&*()_+-"
     assert any(c in symbols for c in p)
 

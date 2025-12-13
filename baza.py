@@ -103,21 +103,24 @@ def main():
         print(f"Надежность пароля: {strength}")
     elif mode == 3:
         try:
-            a = int(input("1)шифровать/2)дешифровать"))
+            a = int(input("1)шифровать\n2)дешифровать\n(1/2): "))
             if a not in (1, 2):
                 print("некоректный ввод автоматически шифруем")
                 a = 1
         except ValueError:
             print("некоректный ввод автоматически шифруем")
             a = 1
-
-        user_pas_encoder = input("введите свой пороль:")
-        keys = input("введите ключ для шифрации:")
+        try:
+            user_pas_encoder = input("введите свой пороль:")
+            keys = int(input("введите ключ:"))
+        except ValueError:
+            print("некоректный ввод ключа, ставим автомотически :1")
+            keys = 1
         if a == 1:
             cipher_pas = encoder(user_pas_encoder, keys)
         if a == 2:
             cipher_pas = decoder(user_pas_encoder, keys)
         print(f"пороль:{cipher_pas}\n"
-              f"ключь: {keys}")
+              f"ключ: {keys}")
 if __name__ == "__main__":
     main()

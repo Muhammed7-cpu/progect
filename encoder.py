@@ -1,4 +1,4 @@
-def encoder(text, key) -> str:
+def encoder(text = str, key = int ) -> str:
     """
     Шифрует строку с использованием операции XOR и возвращает результат в виде hex.
 
@@ -16,7 +16,7 @@ def encoder(text, key) -> str:
     return "".join(encrypted)
 
 
-def decoder(encoded_hex, key) -> str:
+def decoder(encoded_hex = str , key = int ) -> str:
     """
     Дешифрует hex-строку, зашифрованную функцией encoder, используя тот же XOR-ключ.
 
